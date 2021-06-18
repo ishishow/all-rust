@@ -12,7 +12,7 @@
     - yew-router(ルーティング)
 - server-side
   - actix-web
-    - sqlx or disel
+    - sqlx or diesel
   - postgre
 
 ## Specification
