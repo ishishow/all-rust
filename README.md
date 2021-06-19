@@ -1,4 +1,6 @@
 # all-rust
+## 発表資料
+https://docs.google.com/presentation/d/1C_-vkfuOhVFSszZO-8VYC0kB7dsTtbDQHbIF-sMOYGc/edit?usp=sharing
 
 ## Overview
 
