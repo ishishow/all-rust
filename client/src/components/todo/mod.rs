@@ -1,6 +1,4 @@
 use crate::components::todo_item::TodoItem;
-use crate::model;
-use serde_derive::Deserialize;
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::{
@@ -8,12 +6,22 @@ use yew::services::{
     ConsoleService,
 };
 
+use serde_derive::Deserialize;
+
+#[derive(Deserialize, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Item {
+    pub id: i32,
+    pub title: String,
+}
+
 pub struct Todo {
     link: ComponentLink<Self>,
-    list: Vec<model::TodoItem>,
+    list: Vec<Item>,
     input: String,
     show_error: bool,
     user_name: String,
+    fetch_task: Option<FetchTask>,
 }
 
 pub enum Msg {
@@ -22,7 +30,7 @@ pub enum Msg {
     DeleteItem(i32),
     SetUserName(String),
     MakeReq,
-    Resp(Result<Vec<model::TodoItem>, anyhow::Error>),
+    Resp(Result<Vec<Item>, anyhow::Error>),
     None,
 }
 
@@ -30,41 +38,42 @@ impl Component for Todo {
     type Message = Msg;
     type Properties = ();
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        use model::TodoItem;
+        link.send_message(Msg::MakeReq);
         Self {
             link,
             input: String::new(),
             show_error: false,
             list: vec![
-                TodoItem {
+                Item {
                     id: 1,
-                    text: "eat".to_owned(),
+                    title: "eat".to_owned(),
                 },
-                TodoItem {
+                Item {
                     id: 2,
-                    text: "work".to_owned(),
+                    title: "work".to_owned(),
                 },
             ],
             user_name: "ishishow".to_owned(),
+            fetch_task: None,
         }
     }
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::UpdateInput(input) => {
                 self.input = input;
-                true
+                ()
             }
             Msg::AddTodoItem => {
                 if self.input.trim().len() == 0 {
                     self.show_error = true;
                 } else {
-                    self.list.push(model::TodoItem {
+                    self.list.push(Item {
                         id: self.list.len() as i32,
-                        text: self.input.clone(),
+                        title: self.input.clone(),
                     });
                 }
                 self.input = String::new();
-                true
+                ()
             }
             Msg::DeleteItem(id) => {
                 self.list = self
@@ -73,20 +82,22 @@ impl Component for Todo {
                     .into_iter()
                     .filter(|item| item.id != id)
                     .collect();
-                true
+                ()
             }
             Msg::SetUserName(input) => {
                 self.user_name = input;
-                true
+                ()
             }
             Msg::MakeReq => {
-                self.list = None;
-                let req = Request::get("http:localhost:8080/todos")
+                ConsoleService::info(&format!("render TodoApp: {:?}", self.list));
+                let req = Request::get("http://localhost:8080/todos")
                     .body(Nothing)
                     .expect("can make req to jsonplaceholder");
+                ConsoleService::info(&format!("render TodoApp: {:?}", req));
+                ConsoleService::info(&format!("render TodoApp: {:?}", self.list));
 
                 let cb = self.link.callback(
-                    |response: Response<Json<Result<Vec<model::TodoItem>, anyhow::Error>>>| {
+                    |response: Response<Json<Result<Vec<Item>, anyhow::Error>>>| {
                         let Json(data) = response.into_body();
                         Msg::Resp(data)
                     },
@@ -98,12 +109,12 @@ impl Component for Todo {
             }
             Msg::Resp(resp) => {
                 if let Ok(data) = resp {
-                    self.list = Some(data);
+                    self.list = data;
                 }
             }
-
-            _ => true,
+            _ => (),
         }
+        true
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
@@ -154,6 +165,9 @@ impl Component for Todo {
                   html! {}
                 }
               }</div>
+              <button onclick=cb.clone()>
+                { "refresh" }
+              </button>
             </div>
           </div>
         }
