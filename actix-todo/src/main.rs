@@ -7,7 +7,6 @@ mod models;
 use crate::config::Config;
 use crate::handlers::*;
 use crate::models::AppState;
-use actix_cors::Cors;
 use actix_web::{middleware, web, App, HttpServer};
 use dotenv::dotenv;
 use slog::info;
@@ -30,7 +29,16 @@ async fn main() -> io::Result<()> {
     );
 
     HttpServer::new(move || {
-        let cors = Cors::default().allowed_origin("http://localhost:8080");
+        // Cors
+        // let cors = Cors::default()
+        // .allowed_origin("https://www.rust-lang.org/")
+        // .allowed_origin_fn(|origin, _req_head| {
+        //     origin.as_bytes().ends_with(b".rust-lang.org")
+        // })
+        // .allowed_methods(vec!["GET", "POST"])
+        // .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+        // .allowed_header(http::header::CONTENT_TYPE)
+        // .max_age(3600);
         App::new()
             .data(AppState {
                 pool: pool.clone(),

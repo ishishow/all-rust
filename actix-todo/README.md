@@ -1,12 +1,15 @@
-# actix-todo ![Build Status](https://github.com/nemesiscodex/actix-todo/workflows/tests/badge.svg)
+# actix-todo ![Build Status]()
+
 Simple TODO list API made in rust
 
 ## Requirements
+
 - Rust
 - Docker
 - docker-compose
 
 ## Usage
+
 ```
 # Copy example .env file
 cp .env.example .env
@@ -27,8 +30,9 @@ cargo test
 cargo test --features "integration"
 
 # Run the server (Add --release for an optimized build)
-cargo run 
+cargo run
 ```
+
 ```
 curl -s http://localhost:8080/
 ```
@@ -38,6 +42,7 @@ curl -s http://localhost:8080/
 - `GET` `/` -> Status
 
   **Response:**
+
   ```
   {
     "status": "Up"
@@ -47,6 +52,7 @@ curl -s http://localhost:8080/
 - `GET` `/todos` -> Get todo lists
 
   **Response:**
+
   ```
   [
     {
@@ -56,37 +62,47 @@ curl -s http://localhost:8080/
     ...
   [
   ```
+
 - `GET` `/todos/1` -> Get single todo list
 
   **Response:**
+
   ```
   {
     "id": 1,
     "title": "Grocery list"
   }
   ```
+
 - `POST` `/todos` -> Create todo list
 
   **Request Header:**
+
   ```
   Content-Type: application/json
   ```
+
   **Request Body:**
+
   ```
   {
-    "title": "List title"    
+    "title": "List title"
   }
   ```
+
   **Response:**
+
   ```
   {
     "id": 1,
     "title": "Grocery list"
   }
   ```
+
 - `GET` `/todos/1/items` -> Get items of the todo list
 
   **Response:**
+
   ```
   [
     {
@@ -103,9 +119,11 @@ curl -s http://localhost:8080/
     }
   ]
   ```
+
 - `GET` `/todos/1/items/1` -> Get single item of the todo list
 
   **Response:**
+
   ```
   {
     "id": 1,
@@ -118,16 +136,21 @@ curl -s http://localhost:8080/
 - `POST` `/todos/1/items` -> Create todo list item
 
   **Request Header:**
+
   ```
   Content-Type: application/json
   ```
+
   **Request Body:**
+
   ```
   {
-    "title": "Eggs"    
+    "title": "Eggs"
   }
   ```
+
   **Response:**
+
   ```
   {
     "id": 1,
@@ -136,14 +159,18 @@ curl -s http://localhost:8080/
     "checked": false
   }
   ```
+
 - `PUT` `/todos/1/items/1` -> Check todo
 
   **Response:**
+
   ```
   {
     "result": true
   }
   ```
+
   Result:
+
   - `true` -> Checked
   - `false` -> Already checked. Nothing to do.

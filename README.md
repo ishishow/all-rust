@@ -12,7 +12,7 @@
     - yew-router(ルーティング)
 - server-side
   - actix-web
-    - sqlx or diesel
+    - diesel
   - postgre
 
 ## Specification
@@ -23,3 +23,5 @@
   - "todo/"などで新規作成時に api リクエスト,レスポンス(create delete だけで良い)
   - rust で簡単なサーバーサイド、クライアントサイドを書く
   - DB アクセスする
+- 課題点
+  - actix-web のバージョンが古く、バージョンをあげるとソースコードの変更が必要
