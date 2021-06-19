@@ -1,7 +1,12 @@
-use yew::prelude::*;
-
 use crate::components::todo_item::TodoItem;
 use crate::model;
+use serde_derive::Deserialize;
+use yew::format::{Json, Nothing};
+use yew::prelude::*;
+use yew::services::{
+    fetch::{FetchService, FetchTask, Request, Response},
+    ConsoleService,
+};
 
 pub struct Todo {
     link: ComponentLink<Self>,
@@ -16,6 +21,8 @@ pub enum Msg {
     AddTodoItem,
     DeleteItem(i32),
     SetUserName(String),
+    MakeReq,
+    Resp(Result<Vec<model::TodoItem>, anyhow::Error>),
     None,
 }
 
@@ -72,6 +79,29 @@ impl Component for Todo {
                 self.user_name = input;
                 true
             }
+            Msg::MakeReq => {
+                self.list = None;
+                let req = Request::get("http:localhost:8080/todos")
+                    .body(Nothing)
+                    .expect("can make req to jsonplaceholder");
+
+                let cb = self.link.callback(
+                    |response: Response<Json<Result<Vec<model::TodoItem>, anyhow::Error>>>| {
+                        let Json(data) = response.into_body();
+                        Msg::Resp(data)
+                    },
+                );
+
+                let task = FetchService::fetch(req, cb).expect("can create task");
+                self.fetch_task = Some(task);
+                ()
+            }
+            Msg::Resp(resp) => {
+                if let Ok(data) = resp {
+                    self.list = Some(data);
+                }
+            }
+
             _ => true,
         }
     }
@@ -81,6 +111,9 @@ impl Component for Todo {
     }
 
     fn view(&self) -> Html {
+        let todos = self.list.clone();
+        let cb = self.link.callback(|_| Msg::MakeReq);
+        ConsoleService::info(&format!("render TodoApp: {:?}", todos));
         html! {
             <div class="ToDo">
             <img class="Logo" src={"./assets/rust.svg"} alt="Rust logo" />
@@ -88,7 +121,7 @@ impl Component for Todo {
             <h1 class="ToDo-Header">{self.user_name.clone()  + " ToDo!" }</h1>
             <div class="ToDo-Container">
               <div class="ToDo-Content">
-                {self.list
+                {todos
                   .iter()
                   .map(|item| html! {
                     <TodoItem
